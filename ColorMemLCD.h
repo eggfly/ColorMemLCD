@@ -124,6 +124,7 @@ class ColorMemLCD : public Adafruit_GFX {
     char    file_buf[118];                  
   
   void sendbyte(uint8_t data);
+  void sendbytes(uint8_t * data, size_t len);
   void sendbyteLSB(uint8_t data);
   void sendLineCommand( char* line_cmd, int line  );
   

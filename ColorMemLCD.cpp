@@ -179,9 +179,8 @@ void ColorMemLCD::refresh()
     else {
         copy_width = ( ( LCD_DISP_WIDTH - window_x ) / 2 );
     }
-
     for( i = 0 ; i < window_h ; i++ ) {
-
+        // auto t = millis();
         if( window_y + i > LCD_DISP_HEIGHT ){
             /* out of window system */
             break;
@@ -212,27 +211,29 @@ void ColorMemLCD::sendLineCommand( char* line_cmd, int line  )
         return;
     }
 
-    delayMicroseconds(6);
+    // delayMicroseconds(6);
     digitalWrite(_ss, HIGH);
-    delayMicroseconds(6);
+    // delayMicroseconds(6);
     sendbyte( LCD_COLOR_CMD_UPDATE | ( polarity << 6 ) ); // Command
     sendbyte( line + 1 );             // line
 
-    for( j = 0 ; j < (LCD_DISP_WIDTH/2) ; j++ ) {
-        if( j >= (LCD_DEVICE_WIDTH/2) ) {
-            /* out of device size */
-            break;
-        }
-        sendbyte(line_cmd[j]);        // data
-    }
-    for( ; j < (LCD_DEVICE_WIDTH/2) ; j++ ) {
-        /* padding to device size */
-        sendbyteLSB( 0x00 );
-    }
+    // for( j = 0 ; j < (LCD_DISP_WIDTH/2) ; j++ ) {
+    //     if( j >= (LCD_DEVICE_WIDTH/2) ) {
+    //         /* out of device size */
+    //         break;
+    //     }
+    //     sendbyte(line_cmd[j]);        // data
+    // }
+    sendbytes((uint8_t*)line_cmd, LCD_DISP_WIDTH/2);
+    // for( ; j < (LCD_DEVICE_WIDTH/2) ; j++ ) {
+    //     /* padding to device size */
+    //     sendbyteLSB( 0x00 );
+    //     // Serial.println("padding??");
+    // }
 
     sendbyteLSB( 0x00 );
     sendbyteLSB( 0x00 );
-    delayMicroseconds(6);
+    // delayMicroseconds(6);
     digitalWrite(_ss, LOW);
 }
 
@@ -274,7 +275,18 @@ void ColorMemLCD::setBlinkMode( char mode )
 /* PRIVATE METHODS */
 /* *************** */
 
- 
+
+/**************************************************************************/
+/*!
+    @brief  Sends a single byte in (pseudo)-SPI.
+*/
+/**************************************************************************/
+void ColorMemLCD::sendbytes(uint8_t *data, size_t len) 
+{
+  SPI.setBitOrder(MSBFIRST);
+  SPI.transfer(data, len);
+}
+
 /**************************************************************************/
 /*!
     @brief  Sends a single byte in (pseudo)-SPI.
